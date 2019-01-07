@@ -1,0 +1,185 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: "bar-service"
+  annotations:
+    iconClass: "icon-spring"
+    description: Openshift template for spring-boot application/service deploying
+objects:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: "bar-service"
+    labels:
+      app: "bar-service"
+  spec:
+    ports:
+    - name: "bar-service"
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      app: "bar-service"
+    type: ClusterIP
+- apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+    name: "bar-service"
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: "bar-service"
+    labels:
+      app: "bar-service"
+  spec:
+    replicas: 1
+    selector:
+      app: "bar-service"
+    strategy:
+      activeDeadlineSeconds: 21600
+      type: Rolling
+      rollingParams:
+        failurePolicy: Abort
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+    template:
+      metadata:
+        labels:
+          app: "bar-service"
+      spec:
+        serviceAccountName: "bar-service"
+        containers:
+        - name: "bar-service"
+          image: "${IMAGE_NAME}:${APP_VERSION}"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            failureThreshold: 5
+            initialDelaySeconds: 180
+            periodSeconds: 20
+            successThreshold: 1
+            tcpSocket:
+              port: 8080
+            timeoutSeconds: 5
+          readinessProbe:
+            failureThreshold: 5
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            successThreshold: 1
+            tcpSocket:
+              port: 8080
+            timeoutSeconds: 5
+          resources:
+            requests:
+              memory: 1Gi
+          env:
+          - name: JAVA_OPTIONS
+            value: >
+              -Dspring.cloud.kubernetes.secrets.paths=/etc/secrets
+          volumeMounts:
+          - name: rabbitmq-secret
+            mountPath: "/etc/secrets/rabbitmq"
+            readOnly: true
+        volumes:
+        - name: rabbitmq-secret
+          secret:
+            secretName: rabbitmq-secret
+            items:
+              - key: rabbitmq.username
+                path: spring.rabbitmq.username
+              - key: rabbitmq.password
+                path: spring.rabbitmq.password
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    triggers:
+      - type: ConfigChange
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    labels:
+      app: "bar-service"
+    name: "bar-service-db"
+  spec:
+    replicas: 1
+    selector:
+      app: "bar-service-db"
+    strategy:
+      activeDeadlineSeconds: 21600
+      recreateParams:
+        timeoutSeconds: 600
+      resources: {}
+      type: Recreate
+    template:
+      metadata:
+        labels:
+          app: "bar-service-db"
+      spec:
+        containers:
+        - name: "bar-service-db"
+          env:
+          - name: POSTGRES_DB
+            value: "bar-service-db"
+          - name: POSTGRES_USER
+            value: "admin"
+          - name: POSTGRES_PASSWORD
+            value: "admin"
+          - name: PGDATA
+            value: /var/lib/postgresql/data/pgdata
+          - name: POD_IP
+            valueFrom: { fieldRef: { fieldPath: status.podIP } }
+          image: "{{ item_map.database_version }}"
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              memory: "{{ item_map.database_capacity }}"
+          ports:
+          - containerPort: 5432
+            protocol: TCP
+          livenessProbe:
+            exec:
+              command:
+              - sh
+              - -c
+              - exec pg_isready --host $POD_IP
+            initialDelaySeconds: 60
+            timeoutSeconds: 5
+            failureThreshold: 6
+          readinessProbe:
+            exec:
+              command:
+              - sh
+              - -c
+              - exec pg_isready --host $POD_IP
+            initialDelaySeconds: 60
+            timeoutSeconds: 3
+            periodSeconds: 5
+          volumeMounts:
+          - mountPath: /var/lib/postgresql/data
+            name: "bar-service-db"
+        serviceAccount: "bar-service"
+        volumes:
+        - name: "bar-service-db"
+          persistentVolumeClaim:
+            claimName: "bar-service-db"
+parameters:
+- displayName: Application image name
+  name: IMAGE_NAME
+  required: true
+  value: "rmartseniuk/bar-service"
+- displayName: Application version
+  name: APP_VERSION
+  required: true
+  value: "latest"
+- displayName: Current namespace
+  name: NAMESPACE
+  required: true

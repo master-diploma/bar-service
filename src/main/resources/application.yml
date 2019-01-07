@@ -1,0 +1,11 @@
+spring:
+  profiles:
+    active: prod
+  rabbitmq:
+    username: guest
+    password: guest
+    exchange: foo
+    routingkey: foobar
+
+bar:
+  message: Diploma2019

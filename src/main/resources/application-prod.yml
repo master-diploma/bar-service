@@ -1,0 +1,9 @@
+spring:
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_DATABASE}:5432/${POSTGRES_DATABASE}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
