@@ -1,6 +1,6 @@
-package com.epam.edp.bar.repository;
+package org.martseniuk.diploma.bar.repository;
 
-import com.epam.edp.bar.entity.Message;
+import org.martseniuk.diploma.bar.entity.Message;
 import org.springframework.data.repository.CrudRepository;
 
 /**

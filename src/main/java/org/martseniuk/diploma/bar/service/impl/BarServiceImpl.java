@@ -1,8 +1,8 @@
-package com.epam.edp.bar.service.impl;
+package org.martseniuk.diploma.bar.service.impl;
 
-import com.epam.edp.bar.entity.Message;
-import com.epam.edp.bar.repository.BarRepository;
-import com.epam.edp.bar.service.BarService;
+import org.martseniuk.diploma.bar.entity.Message;
+import org.martseniuk.diploma.bar.repository.BarRepository;
+import org.martseniuk.diploma.bar.service.BarService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

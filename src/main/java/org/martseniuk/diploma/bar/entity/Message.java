@@ -1,4 +1,4 @@
-package com.epam.edp.bar.entity;
+package org.martseniuk.diploma.bar.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

@@ -1,4 +1,4 @@
-package com.epam.edp.bar;
+package org.martseniuk.diploma.bar;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

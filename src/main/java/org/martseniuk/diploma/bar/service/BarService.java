@@ -1,4 +1,4 @@
-package com.epam.edp.bar.service;
+package org.martseniuk.diploma.bar.service;
 
 /**
  * Interface of bar service.

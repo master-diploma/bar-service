@@ -1,6 +1,6 @@
-package com.epam.edp.bar.conroller;
+package org.martseniuk.diploma.bar.conroller;
 
-import com.epam.edp.bar.service.BarService;
+import org.martseniuk.diploma.bar.service.BarService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;

@@ -1,4 +1,4 @@
-package com.epam.edp.bar.config;
+package org.martseniuk.diploma.bar.config;
 
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
